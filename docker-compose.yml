@@ -1,0 +1,77 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: book-stock-nginx
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - laravel
+    networks:
+      - book-stock
+
+  laravel:
+    build:
+      context: .
+      dockerfile: docker/laravel/Dockerfile
+      args:
+        UID: 1000
+        GID: 1000
+    container_name: book-stock-laravel
+    environment:
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    depends_on:
+      db:
+        condition: service_healthy
+      db_test:
+        condition: service_healthy
+    networks:
+      - book-stock
+
+  db:
+    image: postgres:16-alpine
+    container_name: book-stock-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-book_stock}
+      POSTGRES_USER: ${POSTGRES_USER:-book_stock}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-book_stock}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - book-stock
+
+  db_test:
+    image: postgres:16-alpine
+    container_name: book-stock-db-test
+    environment:
+      POSTGRES_DB: book_stock_test
+      POSTGRES_USER: ${POSTGRES_USER:-book_stock}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-book_stock}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - book-stock
+
+volumes:
+  db_data:
+
+networks:
+  book-stock:
+    driver: bridge
