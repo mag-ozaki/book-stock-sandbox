@@ -224,6 +224,22 @@ PoC であっても、以下は妥協しないこと:
 - `phpunit.xml` の `<env name="DB_DATABASE" value="book_stock_test"/>` で切り替えること
 - テスト用 DB（`book_stock_test`）は PostgreSQL コンテナ内に事前に作成しておくこと
 
+### テスト実行手順
+テストを実行する際は以下の順番で行うこと:
+
+```bash
+# 1. コンテナ起動
+docker compose up -d
+
+# 2. テスト DB にマイグレーション適用（新しい migration を反映するため）
+docker compose exec laravel php artisan migrate --env=testing
+
+# 3. テスト実行
+docker compose exec laravel php artisan test
+```
+
+注意: `DatabaseTransactions` はマイグレーションを実行しないため、migration 追加後は必ずステップ 2 を実行すること。
+
 ### トレイトの使い分け
 - 通常の Feature テスト・Unit テストは `DatabaseTransactions` を使うこと（高速）
 - migration 自体の検証など、スキーマレベルの確認が必要な場合のみ `RefreshDatabase` を使うこと

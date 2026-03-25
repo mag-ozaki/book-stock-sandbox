@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\BookController;
+use App\Http\Controllers\Web\PurchaseHistoryController;
 use App\Http\Controllers\Web\StockController;
 use App\Http\Controllers\Web\StoreUserController;
 use Illuminate\Support\Facades\Route;
@@ -19,4 +20,8 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
 
     Route::resource('stocks', StockController::class)
         ->except(['show']);
+
+    Route::resource('purchase-histories', PurchaseHistoryController::class)
+        ->except(['edit', 'update'])
+        ->parameters(['purchase-histories' => 'purchase_history']);
 });

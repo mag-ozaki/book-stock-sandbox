@@ -1,2 +1,5 @@
 # カバレッジレポート
 src/coverage/
+
+# Claude Code ローカル設定（個人設定のため非コミット）
+.claude/settings.local.json
