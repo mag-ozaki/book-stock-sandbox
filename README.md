@@ -205,7 +205,11 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | `GET /dashboard` | ダッシュボード |
 | `GET /books` | 書籍一覧 |
 | `GET /stocks` | 在庫一覧 |
+| `GET /stocks/export` | 在庫 CSV エクスポート |
 | `GET /store-users` | スタッフ一覧 |
+| `GET /purchase-histories` | 購入履歴一覧 |
+| `GET /purchase-histories/create` | 購入履歴登録 |
+| `GET /purchase-histories/{id}` | 購入履歴詳細 |
 
 ### 管理者（admins）
 
@@ -228,6 +232,9 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | ユーザー参照（自店舗） | — | ✅ | ✅ |
 | 書籍 CRUD | — | ✅ | ✅ |
 | 在庫 CRUD（自店舗） | — | ✅ | ✅ |
+| 在庫 CSV エクスポート | — | ✅ | ✅ |
+| 購入履歴 参照・登録（自店舗） | — | ✅ | ✅ |
+| 購入履歴 削除（自店舗） | — | ✅ | — |
 
 **スコープ制御の方針：**
 - `store_id` はすべてログインユーザーのセッションから取得し、リクエスト入力値を信用しない
@@ -281,6 +288,15 @@ stocks
   timestamps
   UNIQUE(store_id, book_id)
 
+purchase_histories
+  id            BIGINT PK
+  store_id      BIGINT FK → stores.id (CASCADE)
+  book_id       BIGINT FK → books.id (CASCADE)
+  store_user_id BIGINT FK → store_users.id (CASCADE)
+  quantity      INT UNSIGNED
+  purchased_at  TIMESTAMP
+  timestamps
+
 password_reset_tokens
   email   VARCHAR PRIMARY KEY
   token   VARCHAR
@@ -298,9 +314,12 @@ sessions
 **リレーション：**
 
 ```
-stores ──< store_users
-stores ──< stocks
-books  ──< stocks
+stores      ──< store_users
+stores      ──< stocks
+stores      ──< purchase_histories
+books       ──< stocks
+books       ──< purchase_histories
+store_users ──< purchase_histories
 ```
 
 ---
@@ -330,8 +349,8 @@ book-stock-sandbox/
     │   │   └── Requests/
     │   │       ├── Admin/      # 管理者向けフォームリクエスト
     │   │       └── Web/        # 一般ユーザー向けフォームリクエスト
-    │   ├── Models/             # Admin, Store, StoreUser, Book, Stock
-    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, StockPolicy
+    │   ├── Models/             # Admin, Store, StoreUser, Book, Stock, PurchaseHistory
+    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, StockPolicy, PurchaseHistoryPolicy
     │   ├── Providers/
     │   │   └── FortifyServiceProvider.php
     │   ├── Repositories/       # データアクセス層

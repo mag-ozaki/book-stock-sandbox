@@ -24,6 +24,34 @@ class StockServiceTest extends TestCase
         $this->assertSame($stocks, (new StockService($repo))->listByStore(1));
     }
 
+    public function test_export_by_store_returns_csv_string(): void
+    {
+        $book = new \App\Models\Book();
+        $book->isbn = '9784000000000';
+        $book->title = 'テスト本';
+        $book->author = '著者A';
+        $book->publisher = '出版社X';
+        $book->price = 1500;
+
+        $stock = new Stock();
+        $stock->quantity = 3;
+        $stock->setRelation('book', $book);
+
+        $stocks = new Collection([$stock]);
+
+        $repo = Mockery::mock(StockRepository::class);
+        $repo->shouldReceive('allByStore')->with(1)->once()->andReturn($stocks);
+
+        $csv = (new StockService($repo))->exportByStore(1);
+
+        $this->assertStringContainsString('ISBN', $csv);
+        $this->assertStringContainsString('テスト本', $csv);
+        $this->assertStringContainsString('著者A', $csv);
+        $this->assertStringContainsString('3', $csv);
+        // BOM付きUTF-8であること
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+    }
+
     public function test_create_injects_store_id_from_argument(): void
     {
         $stock       = new Stock();

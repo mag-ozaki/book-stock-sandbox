@@ -11,6 +11,7 @@ use App\Repositories\BookRepository;
 use App\Repositories\StockRepository;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Response;
 
 class StockController extends Controller
@@ -30,6 +31,22 @@ class StockController extends Controller
 
         return inertia('Stocks/Index', [
             'stocks' => $this->service->listByStore($user->store_id),
+        ]);
+    }
+
+    public function export(): HttpResponse
+    {
+        $this->authorize('viewAny', Stock::class);
+
+        /** @var StoreUser $user */
+        $user = auth()->user();
+
+        $csv = $this->service->exportByStore($user->store_id);
+        $filename = 'stocks_' . now()->format('Ymd') . '.csv';
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
