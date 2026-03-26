@@ -31,7 +31,8 @@ type: feat / fix / refactor / test / docs / chore
 `.env` `.env.*` を除く全変更ファイルをステージングし、コミットする。
 
 ```bash
-git add --all -- ':!.env' ':!.env.*'
+git add --all
+git restore --staged .env .env.* 2>/dev/null || true
 git commit -m "<確定したコミットメッセージ>"
 ```
 
@@ -90,10 +91,18 @@ PR 作成後は URL をユーザーに伝える。
 
 ## ステップ 8: CI の監視
 
-以下のコマンドで CI の完了を待機する:
+push 直後は CI がまだ起動していない場合があるため、最新の run ID を取得してから watch する。
 
 ```bash
-gh run watch
+# CI が起動するまで最大 30 秒待機しながら run ID を取得する
+for i in $(seq 1 6); do
+  RUN_ID=$(gh run list --branch <現在のブランチ名> --limit 1 --json databaseId --jq '.[0].databaseId')
+  [ -n "$RUN_ID" ] && break
+  sleep 5
+done
+
+# run ID を指定して CI の完了を待機する
+gh run watch "$RUN_ID"
 ```
 
 CI が失敗した場合は「CI が失敗しました。ログを確認して修正してください」と伝えて中止する。
