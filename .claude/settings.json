@@ -5,6 +5,8 @@
       "Bash(mkdir *)",
       "Bash(git *)",
       "Bash(gh *)",
+      "Bash(for *)",
+      "Bash(sleep *)",
       "Bash(docker compose up -d)",
       "Bash(docker compose exec laravel php artisan migrate --env=testing)",
       "Bash(docker compose exec laravel php artisan test)",
