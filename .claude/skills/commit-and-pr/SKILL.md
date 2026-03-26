@@ -31,7 +31,8 @@ type: feat / fix / refactor / test / docs / chore
 `.env` `.env.*` を除く全変更ファイルをステージングし、コミットする。
 
 ```bash
-git add --all -- ':!.env' ':!.env.*'
+git add --all
+git restore --staged .env .env.* 2>/dev/null || true
 git commit -m "<確定したコミットメッセージ>"
 ```
 
