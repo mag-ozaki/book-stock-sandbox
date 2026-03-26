@@ -56,6 +56,12 @@ jobs:
       - name: アプリケーションキーを生成
         run: docker compose exec -T laravel php artisan key:generate
 
+      - name: npm パッケージをインストール
+        run: docker compose exec -T laravel npm ci
+
+      - name: フロントエンドをビルド（Vite manifest を生成）
+        run: docker compose exec -T laravel npm run build
+
       - name: テスト DB にマイグレーション適用
         run: docker compose exec -T laravel php artisan migrate --env=testing --force
 
