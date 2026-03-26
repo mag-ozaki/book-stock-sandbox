@@ -22,6 +22,52 @@
 - Windows 11 + WSL2
 - Docker Desktop（WSL2 統合が有効になっていること）
 - エディタから WSL2 に接続できること（Cursor 推奨）
+- **gh CLI**（GitHub CLI）— PR 作成・CI 監視・マージ自動化に必要
+
+---
+
+## 開発ツールのセットアップ
+
+### gh CLI（GitHub CLI）のインストール
+
+WSL2 上で以下を実行します。
+
+```bash
+# 公式リポジトリを追加して apt でインストール
+(type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+&& sudo mkdir -p -m 755 /etc/apt/keyrings \
+&& out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+&& cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+&& sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+&& sudo apt update \
+&& sudo apt install gh -y
+
+# インストール確認
+gh --version
+```
+
+### gh CLI の認証
+
+インストール後、一度だけ GitHub 認証を行います。
+
+```bash
+gh auth login
+```
+
+対話式プロンプトでは以下を選択してください：
+
+| 質問 | 推奨選択 |
+|------|----------|
+| What account do you want to log into? | `GitHub.com` |
+| What is your preferred protocol for Git operations? | `HTTPS` |
+| Authenticate Git with your GitHub credentials? | `Y`（Enter） |
+| How would you like to authenticate GitHub CLI? | `Login with a web browser` |
+
+ブラウザで表示されるワンタイムコードを入力して認証を完了してください。
+
+> **再認証が必要なタイミング：** トークンの有効期限切れ・失効・PC 移行時など。
+> `gh auth status` で現在の認証状態を確認できます。
 
 ---
 
