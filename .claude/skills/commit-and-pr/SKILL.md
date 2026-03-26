@@ -91,18 +91,11 @@ PR 作成後は URL をユーザーに伝える。
 
 ## ステップ 8: CI の監視
 
-push 直後は CI がまだ起動していない場合があるため、最新の run ID を取得してから watch する。
+push 直後は CI がまだ起動していない場合があるため、10 秒待ってから run ID を取得して watch する。
 
 ```bash
-# CI が起動するまで最大 30 秒待機しながら run ID を取得する
-for i in $(seq 1 6); do
-  RUN_ID=$(gh run list --branch <現在のブランチ名> --limit 1 --json databaseId --jq '.[0].databaseId')
-  [ -n "$RUN_ID" ] && break
-  sleep 5
-done
-
-# run ID を指定して CI の完了を待機する
-gh run watch "$RUN_ID"
+sleep 10
+gh run watch $(gh run list --branch <現在のブランチ名> --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 CI が失敗した場合は「CI が失敗しました。ログを確認して修正してください」と伝えて中止する。
