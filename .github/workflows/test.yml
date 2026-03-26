@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: コードをチェックアウト
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Docker Compose 用 .env を作成
         run: cp .env.example .env
