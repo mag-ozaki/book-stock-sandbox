@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(**)",
+      "Bash(mkdir *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(docker compose up -d)",
+      "Bash(docker compose exec laravel php artisan migrate --env=testing)",
+      "Bash(docker compose exec laravel php artisan test)",
+      "Bash(docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push *--force*)",
+      "Bash(git push *-f)",
+      "Bash(git push *-f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git checkout -- *)"
+    ]
+  }
+}
