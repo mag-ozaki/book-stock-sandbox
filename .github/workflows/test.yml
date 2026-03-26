@@ -44,6 +44,9 @@ jobs:
             echo 'VITE_APP_NAME=Laravel'
           } > src/.env
 
+      - name: src/ の所有者を appuser（UID 1000）に変更
+        run: sudo chown -R 1000:1000 src/
+
       - name: テスト対象コンテナを起動（nginx は除外）
         run: docker compose up -d --build laravel db db_test
 
@@ -52,6 +55,12 @@ jobs:
 
       - name: アプリケーションキーを生成
         run: docker compose exec -T laravel php artisan key:generate
+
+      - name: npm パッケージをインストール
+        run: docker compose exec -T laravel npm ci
+
+      - name: フロントエンドをビルド（Vite manifest を生成）
+        run: docker compose exec -T laravel npm run build
 
       - name: テスト DB にマイグレーション適用
         run: docker compose exec -T laravel php artisan migrate --env=testing --force

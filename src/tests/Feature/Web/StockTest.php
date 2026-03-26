@@ -132,6 +132,47 @@ class StockTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_owner_can_export_csv(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+        $book  = Book::factory()->create();
+        Stock::factory()->create(['store_id' => $owner->store_id, 'book_id' => $book->id, 'quantity' => 5]);
+
+        $response = $this->actingAs($owner, 'web')
+            ->get(route('stocks.export'));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString($book->title, $response->getContent());
+    }
+
+    public function test_employee_can_export_csv(): void
+    {
+        $employee = StoreUser::factory()->employee()->create();
+
+        $this->actingAs($employee, 'web')
+            ->get(route('stocks.export'))
+            ->assertOk();
+    }
+
+    public function test_export_returns_only_own_store_stocks(): void
+    {
+        $owner      = StoreUser::factory()->owner()->create();
+        $otherStore = Store::factory()->create();
+        $ownBook    = Book::factory()->create(['title' => '自店舗の本']);
+        $otherBook  = Book::factory()->create(['title' => '他店舗の本']);
+
+        Stock::factory()->create(['store_id' => $owner->store_id, 'book_id' => $ownBook->id]);
+        Stock::factory()->create(['store_id' => $otherStore->id, 'book_id' => $otherBook->id]);
+
+        $response = $this->actingAs($owner, 'web')
+            ->get(route('stocks.export'));
+
+        $content = $response->getContent();
+        $this->assertStringContainsString('自店舗の本', $content);
+        $this->assertStringNotContainsString('他店舗の本', $content);
+    }
+
     public function test_guest_cannot_access_stocks(): void
     {
         $this->get(route('stocks.index'))

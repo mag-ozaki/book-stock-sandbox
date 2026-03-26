@@ -15,6 +15,37 @@ class StockService
         return $this->repo->allByStore($storeId);
     }
 
+    public function exportByStore(int $storeId): string
+    {
+        $stocks = $this->repo->allByStore($storeId);
+
+        $rows = [];
+        $rows[] = ['ISBN', 'タイトル', '著者', '出版社', '価格', '在庫数'];
+
+        foreach ($stocks as $stock) {
+            $rows[] = [
+                $stock->book->isbn ?? '',
+                $stock->book->title ?? '',
+                $stock->book->author ?? '',
+                $stock->book->publisher ?? '',
+                $stock->book->price ?? '',
+                $stock->quantity,
+            ];
+        }
+
+        $handle = fopen('php://temp', 'r+');
+        // BOM付きUTF-8（Excel対応）
+        fwrite($handle, "\xEF\xBB\xBF");
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return $csv;
+    }
+
     public function create(int $storeId, array $data): Stock
     {
         // store_id はログインユーザーから導出し、リクエスト入力を信用しない

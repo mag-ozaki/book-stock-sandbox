@@ -17,10 +17,16 @@ const destroy = (id) => {
   <div>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-800">在庫一覧</h1>
-      <Link :href="route('stocks.create')"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-        + 在庫を追加
-      </Link>
+      <div class="flex items-center gap-3">
+        <a :href="route('stocks.export')"
+          class="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 text-sm border border-gray-300">
+          CSV エクスポート
+        </a>
+        <Link :href="route('stocks.create')"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+          + 在庫を追加
+        </Link>
+      </div>
     </div>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
