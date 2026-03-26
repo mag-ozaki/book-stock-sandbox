@@ -3,7 +3,7 @@ name: commit-and-pr
 description: 変更をコミットし、push して GitHub PR を作成する
 ---
 
-以下の手順でコミットから PR 作成までを行ってください。
+以下の手順でコミットから PR 作成・マージ・develop 同期までを行ってください。
 
 ## ステップ 1: 変更ファイルの確認
 
@@ -51,10 +51,11 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage 
 
 ## ステップ 5: push & PR 作成の確認
 
-ユーザーに確認を求める:
-「push して PR を作成してよいですか？」
+現在のブランチを確認する。
 
-ユーザーが否定した場合はコミットのみで終了する。
+`develop` ブランチの場合: 「現在 develop ブランチにいます。push のみ行ってよいですか？」と確認し、承認されれば push して終了する。
+
+feature / fix 等のブランチの場合: 「push して PR を作成してよいですか？」と確認する。ユーザーが否定した場合はコミットのみで終了する。
 
 ## ステップ 6: push
 
@@ -64,11 +65,13 @@ git push origin <現在のブランチ名>
 
 ## ステップ 7: PR 作成
 
-`git log` と `git diff develop...HEAD` をもとに PR タイトルと本文を生成し、以下の形式で PR を作成する。
+`git log` と `git diff develop...HEAD` をもとに PR タイトルと本文を生成し、以下のコマンドで PR を作成する。
 
-- タイトル: コミットメッセージと同じ
-- ベースブランチ: `develop`
-- 本文フォーマット:
+```bash
+gh pr create --title "<タイトル>" --base develop --body "<本文>"
+```
+
+本文フォーマット:
 
 ```
 ## 概要
@@ -83,4 +86,35 @@ git push origin <現在のブランチ名>
 - [ ] 店舗スコープの制御が正しいこと
 ```
 
-PR 作成後は URL をユーザーに伝えて完了とする。
+PR 作成後は URL をユーザーに伝える。
+
+## ステップ 8: CI の監視
+
+以下のコマンドで CI の完了を待機する:
+
+```bash
+gh run watch
+```
+
+CI が失敗した場合は「CI が失敗しました。ログを確認して修正してください」と伝えて中止する。
+
+CI が通過した場合は次のステップへ進む。
+
+## ステップ 9: マージの確認
+
+ユーザーに確認を求める:
+「CI が通過しました。PR をマージして develop に同期してよいですか？」
+
+ユーザーが否定した場合はここで終了する。
+
+## ステップ 10: マージ & develop 同期
+
+PR をスカッシュマージしてブランチを削除し、develop を最新化する。
+
+```bash
+gh pr merge --squash --delete-branch
+git checkout develop
+git pull origin develop
+```
+
+完了後、「マージと develop への同期が完了しました」と伝えて終了する。
