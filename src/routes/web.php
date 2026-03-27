@@ -18,6 +18,7 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
     Route::resource('books', BookController::class)
         ->except(['show']);
 
+    Route::get('/stocks/export', [StockController::class, 'export'])->name('stocks.export');
     Route::resource('stocks', StockController::class)
         ->except(['show']);
 
