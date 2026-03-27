@@ -15,7 +15,7 @@ class BookFactory extends Factory
     public function definition(): array
     {
         return [
-            'isbn'      => fake()->unique()->numerify('978#########'),
+            'jan_code'  => fake()->unique()->numerify('978##########') . fake()->numerify('1920#########'),
             'title'     => fake()->sentence(3),
             'author'    => fake()->name(),
             'publisher' => fake()->company(),

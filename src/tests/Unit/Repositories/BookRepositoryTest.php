@@ -63,7 +63,7 @@ class BookRepositoryTest extends TestCase
 
     public function test_create_persists_book(): void
     {
-        $data = ['title' => 'New Book', 'author' => 'Author', 'isbn' => null, 'publisher' => null, 'price' => null];
+        $data = ['title' => 'New Book', 'author' => 'Author', 'jan_code' => null, 'publisher' => null, 'price' => null];
 
         $book = $this->repo->create($data);
 
@@ -88,5 +88,22 @@ class BookRepositoryTest extends TestCase
         $this->repo->delete($book);
 
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
+    }
+
+    public function test_find_by_jan_code_returns_book_when_found(): void
+    {
+        $book = Book::factory()->create(['jan_code' => '97840000000001920000000000']);
+
+        $result = $this->repo->findByJanCode('97840000000001920000000000');
+
+        $this->assertInstanceOf(Book::class, $result);
+        $this->assertSame($book->id, $result->id);
+    }
+
+    public function test_find_by_jan_code_returns_null_when_not_found(): void
+    {
+        $result = $this->repo->findByJanCode('99999999999999999999999999');
+
+        $this->assertNull($result);
     }
 }

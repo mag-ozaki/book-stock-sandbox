@@ -34,4 +34,9 @@ class BookService
     {
         $this->repo->delete($book);
     }
+
+    public function findByJanCode(string $janCode): ?Book
+    {
+        return $this->repo->findByJanCode($janCode);
+    }
 }

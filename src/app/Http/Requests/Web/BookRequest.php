@@ -18,11 +18,11 @@ class BookRequest extends FormRequest
         $book = $this->route('book');
 
         return [
-            'isbn'      => [
+            'jan_code'  => [
                 'nullable',
                 'string',
-                'max:20',
-                Rule::unique(Book::class, 'isbn')->ignore($book?->id),
+                'digits:26',
+                Rule::unique(Book::class, 'jan_code')->ignore($book?->id),
             ],
             'title'     => ['required', 'string', 'max:255'],
             'author'    => ['required', 'string', 'max:255'],

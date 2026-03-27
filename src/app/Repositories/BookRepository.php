@@ -41,4 +41,13 @@ class BookRepository
     {
         $book->delete();
     }
+
+    /**
+     * JANコードで書籍を検索する（POS連携用）
+     * 見つからない場合は null を返す
+     */
+    public function findByJanCode(string $janCode): ?Book
+    {
+        return Book::where('jan_code', $janCode)->first();
+    }
 }

@@ -31,7 +31,7 @@ const destroy = (id) => {
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">著者</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">出版社</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">価格</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ISBN</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">JANコード</th>
             <th class="px-6 py-3"></th>
           </tr>
         </thead>
@@ -43,7 +43,7 @@ const destroy = (id) => {
             <td class="px-6 py-4 text-sm text-gray-500">
               {{ book.price != null ? `¥${book.price.toLocaleString()}` : '—' }}
             </td>
-            <td class="px-6 py-4 text-sm text-gray-400">{{ book.isbn ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-gray-400">{{ book.jan_code ?? '—' }}</td>
             <td class="px-6 py-4 text-right text-sm space-x-3">
               <Link :href="route('books.edit', book.id)" class="text-blue-600 hover:underline">編集</Link>
               <button @click="destroy(book.id)" class="text-red-500 hover:underline">削除</button>

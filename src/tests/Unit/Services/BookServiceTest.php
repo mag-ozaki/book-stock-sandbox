@@ -66,4 +66,19 @@ class BookServiceTest extends TestCase
 
         (new BookService($repo))->delete($book);
     }
+
+    public function test_find_by_jan_code_delegates_to_repository(): void
+    {
+        $book = new Book();
+
+        $repo = Mockery::mock(BookRepository::class);
+        $repo->shouldReceive('findByJanCode')
+            ->with('97840000000001920000000000')
+            ->once()
+            ->andReturn($book);
+
+        $result = (new BookService($repo))->findByJanCode('97840000000001920000000000');
+
+        $this->assertSame($book, $result);
+    }
 }
