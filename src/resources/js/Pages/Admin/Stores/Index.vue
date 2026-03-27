@@ -41,6 +41,7 @@ const destroy = (id) => {
             <td class="px-6 py-4 text-sm text-gray-500">{{ store.address ?? '—' }}</td>
             <td class="px-6 py-4 text-sm text-gray-500">{{ store.phone ?? '—' }}</td>
             <td class="px-6 py-4 text-right text-sm space-x-3">
+              <Link :href="route('admin.stores.api-keys.index', store.id)" class="text-indigo-600 hover:underline">APIキー</Link>
               <Link :href="route('admin.stores.edit', store.id)" class="text-indigo-600 hover:underline">編集</Link>
               <button @click="destroy(store.id)" class="text-red-500 hover:underline">削除</button>
             </td>
