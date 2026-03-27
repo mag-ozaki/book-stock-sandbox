@@ -256,6 +256,8 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | `GET /purchase-histories` | 購入履歴一覧 |
 | `GET /purchase-histories/create` | 購入履歴登録 |
 | `GET /purchase-histories/{id}` | 購入履歴詳細 |
+| `GET /sale-histories` | 販売履歴一覧 |
+| `GET /sale-histories/{id}` | 販売履歴詳細 |
 
 ### 管理者（admins）
 
@@ -265,6 +267,14 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | `GET /admin/dashboard` | 管理ダッシュボード |
 | `GET /admin/stores` | 店舗一覧 |
 | `GET /admin/store-users` | ユーザー一覧（全店舗） |
+| `GET /admin/api-keys` | API キー一覧（全店舗） |
+
+### POS API（Bearer トークン認証）
+
+| URL | 説明 |
+|-----|------|
+| `GET /api/stores/{store}/books/{jan_code}` | JANコードで書籍単価照会 |
+| `POST /api/stores/{store}/sale-histories` | 販売履歴記録 |
 
 ---
 
@@ -274,6 +284,7 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 |------|:-----:|:-----:|:--------:|
 | 店舗 CRUD（全店舗） | ✅ | — | — |
 | ユーザー CRUD（全店舗） | ✅ | — | — |
+| API キー CRUD（全店舗） | ✅ | — | — |
 | ユーザー CRUD（自店舗） | — | ✅ | — |
 | ユーザー参照（自店舗） | — | ✅ | ✅ |
 | 書籍 CRUD | — | ✅ | ✅ |
@@ -281,6 +292,7 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | 在庫 CSV エクスポート | — | ✅ | ✅ |
 | 購入履歴 参照・登録（自店舗） | — | ✅ | ✅ |
 | 購入履歴 削除（自店舗） | — | ✅ | — |
+| 販売履歴 参照（自店舗） | — | ✅ | ✅ |
 
 **スコープ制御の方針：**
 - `store_id` はすべてログインユーザーのセッションから取得し、リクエスト入力値を信用しない
@@ -319,7 +331,7 @@ store_users
 
 books
   id            BIGINT PK
-  isbn          VARCHAR(20) UNIQUE NULL
+  jan_code      VARCHAR(26) UNIQUE NULL  ※上段13桁+下段13桁
   title         VARCHAR(255)
   author        VARCHAR(255)
   publisher     VARCHAR(255) NULL
@@ -343,6 +355,28 @@ purchase_histories
   purchased_at  TIMESTAMP
   timestamps
 
+store_api_keys
+  id            BIGINT PK
+  store_id      BIGINT FK → stores.id (CASCADE)
+  name          VARCHAR(100)
+  key_hash      VARCHAR(64) UNIQUE  ※SHA-256 ハッシュ
+  allowed_ips   JSON NULL
+  is_active     BOOLEAN DEFAULT TRUE
+  last_used_at  TIMESTAMP NULL
+  expires_at    TIMESTAMP NULL
+  created_by    BIGINT FK → admins.id (RESTRICT)
+  timestamps
+
+sale_histories
+  id              BIGINT PK
+  store_id        BIGINT FK → stores.id (CASCADE)
+  book_id         BIGINT FK → books.id (RESTRICT)
+  quantity        INT UNSIGNED
+  sold_at         TIMESTAMP
+  pos_terminal_id VARCHAR(100) NULL
+  timestamps
+  INDEX(store_id, sold_at)
+
 password_reset_tokens
   email   VARCHAR PRIMARY KEY
   token   VARCHAR
@@ -363,9 +397,13 @@ sessions
 stores      ──< store_users
 stores      ──< stocks
 stores      ──< purchase_histories
+stores      ──< store_api_keys
+stores      ──< sale_histories
 books       ──< stocks
 books       ──< purchase_histories
+books       ──< sale_histories
 store_users ──< purchase_histories
+admins      ──< store_api_keys
 ```
 
 ---
@@ -389,14 +427,19 @@ book-stock-sandbox/
     │   ├── Http/
     │   │   ├── Controllers/
     │   │   │   ├── Admin/      # 管理者向けコントローラー
+    │   │   │   ├── Api/        # POS API コントローラー
     │   │   │   └── Web/        # 一般ユーザー向けコントローラー
     │   │   ├── Middleware/
-    │   │   │   └── HandleInertiaRequests.php
-    │   │   └── Requests/
-    │   │       ├── Admin/      # 管理者向けフォームリクエスト
-    │   │       └── Web/        # 一般ユーザー向けフォームリクエスト
-    │   ├── Models/             # Admin, Store, StoreUser, Book, Stock, PurchaseHistory
-    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, StockPolicy, PurchaseHistoryPolicy
+    │   │   │   ├── HandleInertiaRequests.php
+    │   │   │   ├── AuthenticateStoreApiKey.php  # Bearer トークン認証
+    │   │   │   └── RestrictPosIpAddress.php     # IP 制限（スタブ）
+    │   │   ├── Requests/
+    │   │   │   ├── Admin/      # 管理者向けフォームリクエスト
+    │   │   │   ├── Api/        # POS API フォームリクエスト
+    │   │   │   └── Web/        # 一般ユーザー向けフォームリクエスト
+    │   │   └── Resources/      # BookResource, SaleHistoryResource
+    │   ├── Models/             # Admin, Store, StoreUser, Book, Stock, PurchaseHistory, StoreApiKey, SaleHistory
+    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, StockPolicy, PurchaseHistoryPolicy, SaleHistoryPolicy
     │   ├── Providers/
     │   │   └── FortifyServiceProvider.php
     │   ├── Repositories/       # データアクセス層
@@ -416,6 +459,7 @@ book-stock-sandbox/
     │       └── app.blade.php   # Inertia ルートテンプレート
     └── routes/
         ├── admin.php           # /admin/* ルート
+        ├── api.php             # /api/* POS API ルート
         └── web.php             # 一般ユーザー向けルート
 ```
 
