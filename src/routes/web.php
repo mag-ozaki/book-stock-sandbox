@@ -25,4 +25,8 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
     Route::resource('purchase-histories', PurchaseHistoryController::class)
         ->except(['edit', 'update'])
         ->parameters(['purchase-histories' => 'purchase_history']);
+
+    Route::resource('sale-histories', \App\Http\Controllers\Web\SaleHistoryController::class)
+        ->only(['index', 'show'])
+        ->parameters(['sale-histories' => 'sale_history']);
 });

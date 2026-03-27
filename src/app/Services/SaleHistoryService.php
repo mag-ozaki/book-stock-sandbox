@@ -4,10 +4,21 @@ namespace App\Services;
 
 use App\Models\SaleHistory;
 use App\Repositories\SaleHistoryRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class SaleHistoryService
 {
     public function __construct(private SaleHistoryRepository $repo) {}
+
+    public function listByStore(int $storeId): Collection
+    {
+        return $this->repo->allByStore($storeId);
+    }
+
+    public function findByStore(int $id, int $storeId): SaleHistory
+    {
+        return $this->repo->findByStoreOrFail($id, $storeId);
+    }
 
     /**
      * 販売履歴を作成する。
