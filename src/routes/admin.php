@@ -25,5 +25,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('store-users', StoreUserController::class)
             ->except(['show'])
             ->parameters(['store-users' => 'store_user']);
+
+        Route::resource('stores.api-keys', \App\Http\Controllers\Admin\StoreApiKeyController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->parameters(['api-keys' => 'api_key']);
     });
 });

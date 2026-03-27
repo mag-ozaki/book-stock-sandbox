@@ -30,4 +30,9 @@ class Store extends Model
     {
         return $this->hasMany(PurchaseHistory::class);
     }
+
+    public function apiKeys(): HasMany
+    {
+        return $this->hasMany(StoreApiKey::class);
+    }
 }
