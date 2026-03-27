@@ -27,4 +27,9 @@ class Book extends Model
     {
         return $this->hasMany(PurchaseHistory::class);
     }
+
+    public function saleHistories(): HasMany
+    {
+        return $this->hasMany(SaleHistory::class);
+    }
 }

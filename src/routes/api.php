@@ -10,4 +10,8 @@ Route::middleware([
     Route::get('/books/{jan_code}', [\App\Http\Controllers\Api\BookController::class, 'show'])
         ->where('jan_code', '[0-9]{26}')
         ->name('api.stores.books.show');
+
+    // 販売履歴記録（機能4）
+    Route::post('/sale-histories', [\App\Http\Controllers\Api\SaleHistoryController::class, 'store'])
+        ->name('api.stores.sale-histories.store');
 });
