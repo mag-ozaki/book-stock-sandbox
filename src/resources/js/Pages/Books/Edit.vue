@@ -7,7 +7,7 @@ defineOptions({ layout: AppLayout })
 const props = defineProps({ book: Object })
 
 const form = useForm({
-  isbn:      props.book.isbn ?? '',
+  jan_code:  props.book.jan_code ?? '',
   title:     props.book.title,
   author:    props.book.author,
   publisher: props.book.publisher ?? '',
@@ -56,11 +56,12 @@ const submit = () => form.put(route('books.update', props.book.id))
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
-        <input v-model="form.isbn" type="text"
+        <label class="block text-sm font-medium text-gray-700 mb-1">JANコード</label>
+        <input v-model="form.jan_code" type="text" maxlength="26" inputmode="numeric"
           class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          :class="{ 'border-red-400': form.errors.isbn }" />
-        <p v-if="form.errors.isbn" class="text-red-500 text-sm mt-1">{{ form.errors.isbn }}</p>
+          :class="{ 'border-red-400': form.errors.jan_code }" />
+        <p class="text-gray-400 text-xs mt-1">26桁の数字（上段13桁+下段13桁）</p>
+        <p v-if="form.errors.jan_code" class="text-red-500 text-sm mt-1">{{ form.errors.jan_code }}</p>
       </div>
 
       <div class="pt-2">

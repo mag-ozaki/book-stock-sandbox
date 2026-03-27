@@ -11,7 +11,7 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = [
-        'isbn',
+        'jan_code',
         'title',
         'author',
         'publisher',
