@@ -4,16 +4,7 @@ import { Link } from '@inertiajs/vue3'
 
 defineOptions({ layout: AppLayout })
 
-defineProps<{
-  saleHistory: {
-    id: number
-    book: { id: number; title: string; author: string; price: number | null }
-    quantity: number
-    sold_at: string
-    pos_terminal_id: string | null
-    created_at: string
-  }
-}>()
+defineProps({ saleHistory: Object })
 </script>
 
 <template>
