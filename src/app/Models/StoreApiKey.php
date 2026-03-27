@@ -22,6 +22,7 @@ class StoreApiKey extends Model
     ];
 
     protected $casts = [
+        'store_id'     => 'integer',
         'allowed_ips'  => 'array',
         'is_active'    => 'boolean',
         'last_used_at' => 'datetime',
