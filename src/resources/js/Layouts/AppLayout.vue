@@ -14,6 +14,8 @@ const page = usePage()
           <Link :href="route('books.index')" class="text-gray-600 hover:text-gray-900 text-sm">書籍</Link>
           <Link :href="route('stocks.index')" class="text-gray-600 hover:text-gray-900 text-sm">在庫</Link>
           <Link :href="route('store-users.index')" class="text-gray-600 hover:text-gray-900 text-sm">スタッフ</Link>
+          <Link :href="route('purchase-histories.index')" class="text-gray-600 hover:text-gray-900 text-sm">仕入れ履歴</Link>
+          <Link :href="route('sale-histories.index')" class="text-gray-600 hover:text-gray-900 text-sm">販売履歴</Link>
         </div>
         <div class="flex items-center gap-4">
           <span class="text-gray-500 text-sm">{{ page.props.auth.user?.name }}</span>
