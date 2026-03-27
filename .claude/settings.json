@@ -7,8 +7,10 @@
       "Bash(gh *)",
       "Bash(sleep *)",
       "Bash(docker compose up -d)",
+      "Bash(docker compose run *)",
       "Bash(docker compose exec laravel php artisan migrate --env=testing)",
       "Bash(docker compose exec laravel php artisan test)",
+      "Bash(docker compose exec laravel php artisan test *)",
       "Bash(docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test*)"
     ],
     "deny": [
