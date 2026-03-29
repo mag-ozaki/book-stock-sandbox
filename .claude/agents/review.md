@@ -1,6 +1,6 @@
 ---
 name: review
-description: フェーズ4のレビューエージェント。認可漏れ・Policy 適用漏れ・店舗スコープ制御の正確性・バックエンドとフロントエンドの props 仕様の整合性を確認する。問題があればフェーズ3に戻すべき点を明示する。
+description: フェーズ4のレビューエージェント。認可漏れ・Policy 適用漏れ・店舗スコープ制御の正確性・バックエンドとフロントエンドの props 仕様の整合性・POS API のセキュリティ（Bearer 認証・IP 制限・レート制限・API キー有効性）を確認する。問題があればフェーズ3に戻すべき点を明示する。
 tools: Read, Grep, Glob
 model: sonnet
 ---
@@ -46,7 +46,36 @@ model: sonnet
 **Form → Controller**
 - Vue の `useForm()` で送信するフィールド名が Form Request のバリデーションルールと一致しているか
 
-### 4. その他
+### 4. POS API セキュリティ
+POS API（`/api/stores/{store}/...`）が含まれる場合は以下を確認すること：
+
+**Bearer トークン認証**
+- `AuthenticateStoreApiKey` ミドルウェアが該当ルートに適用されているか
+- ミドルウェア内で `Authorization: Bearer <token>` ヘッダーを正しく取り出しているか
+- `store_api_keys` テーブルへの照合時に `hash_equals()` または同等の定数時間比較を使っているか（タイミング攻撃対策）
+- 認証失敗時に 401 を返しているか（403 との混同に注意）
+
+**API キーの有効性チェック**
+- `is_active = true` の確認が漏れていないか
+- `expires_at` が設定されている場合、有効期限切れキーを拒否しているか
+- 上記チェックがミドルウェア内で完結しているか（Controller に漏れ出していないか）
+
+**IP 制限**
+- `RestrictPosIpAddress` ミドルウェアが適用されているか
+- `allowed_ips` が空の場合の挙動が明示されているか（全許可 or 全拒否）
+- IPv6・プロキシ越しの `X-Forwarded-For` を信用しすぎていないか
+- IP チェック失敗時に 403 を返しているか
+
+**store_id スコープの二重チェック**
+- Route Model Binding で解決された `{store}` と、認証済み API キーの `store_id` が一致しているか確認しているか
+- ミドルウェアと Controller / Service の両方でスコープが一貫しているか
+- リクエストボディ・クエリパラメータの `store_id` をそのまま信用していないか
+
+**レート制限（現状未実装の場合は指摘）**
+- `throttle` ミドルウェアまたは同等の制限が POS API ルートに適用されているか
+- 未適用の場合は「懸念点」として明示すること
+
+### 5. その他
 - `fillable` に必要なカラムがすべて含まれているか
 - Migration の `down()` が正しく定義されているか
 - ルート名が命名規則（`admin.stores.index` / `books.index` 等）に従っているか
