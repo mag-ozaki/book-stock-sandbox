@@ -30,19 +30,21 @@ PoC であっても、認証・認可・guard 設計・DB スキーマ・Docker 
 
 | ロール | 権限 |
 |---|---|
-| admin | stores の CRUD（全店舗）、store_users の CRUD（全店舗）、store_api_keys の CRUD（全店舗） |
-| owner | 自店舗の store_users CRUD、books CRUD、stocks CRUD、purchase_histories Read/Create/Delete、sale_histories Read |
-| employee | 自店舗の store_users Read のみ、books CRUD、stocks CRUD、purchase_histories Read/Create、sale_histories Read |
+| admin | stores の CRUD（全店舗）、store_users の CRUD（全店舗）、store_api_keys の CRUD（全店舗）、genres CRUD |
+| owner | 自店舗の store_users CRUD、books CRUD、stocks CRUD、purchase_histories Read/Create/Delete、sale_histories Read、genres CRUD |
+| employee | 自店舗の store_users Read のみ、books CRUD、stocks CRUD、purchase_histories Read/Create、sale_histories Read、genres CRUD |
 
 **店舗スコープ制御は必須。admin 以外は他店舗のデータにアクセスできてはならない。**
 
 ### データモデル
 
-テーブル: `admins` / `stores` / `store_users` / `books` / `stocks` / `purchase_histories` / `store_api_keys` / `sale_histories`
+テーブル: `admins` / `stores` / `store_users` / `books` / `genres` / `stocks` / `purchase_histories` / `store_api_keys` / `sale_histories`
 
 主なリレーション:
 - stores hasMany store_users, stocks, purchase_histories, store_api_keys, sale_histories
 - books hasMany stocks, purchase_histories, sale_histories
+- books belongsTo genre（nullable）
+- genres hasMany books
 - stocks / store_users / purchase_histories / store_api_keys / sale_histories belongsTo store
 - purchase_histories belongsTo book, store_user
 - sale_histories belongsTo book

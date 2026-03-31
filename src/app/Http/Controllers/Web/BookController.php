@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\BookRequest;
 use App\Models\Book;
+use App\Repositories\GenreRepository;
 use App\Services\BookService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 
 class BookController extends Controller
 {
-    public function __construct(private BookService $service) {}
+    public function __construct(
+        private BookService $service,
+        private GenreRepository $genreRepo,
+    ) {}
 
     public function index(): Response
     {
@@ -26,7 +30,9 @@ class BookController extends Controller
     {
         $this->authorize('create', Book::class);
 
-        return inertia('Books/Create');
+        return inertia('Books/Create', [
+            'genres' => $this->genreRepo->all(),
+        ]);
     }
 
     public function store(BookRequest $request): RedirectResponse
@@ -44,7 +50,8 @@ class BookController extends Controller
         $this->authorize('update', $book);
 
         return inertia('Books/Edit', [
-            'book' => $book,
+            'book'   => $book,
+            'genres' => $this->genreRepo->all(),
         ]);
     }
 

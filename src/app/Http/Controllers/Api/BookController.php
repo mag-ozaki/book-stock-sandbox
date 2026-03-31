@@ -24,6 +24,8 @@ class BookController extends Controller
             return response()->json(['message' => 'Book not found.'], 404);
         }
 
+        $book->loadMissing('genre');
+
         return (new BookResource($book))->response();
     }
 }

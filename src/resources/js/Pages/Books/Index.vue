@@ -28,6 +28,7 @@ const destroy = (id) => {
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">タイトル</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ジャンル</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">著者</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">出版社</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">価格</th>
@@ -38,6 +39,7 @@ const destroy = (id) => {
         <tbody class="divide-y divide-gray-200">
           <tr v-for="book in books" :key="book.id" class="hover:bg-gray-50">
             <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ book.title }}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">{{ book.genre?.name ?? '—' }}</td>
             <td class="px-6 py-4 text-sm text-gray-500">{{ book.author }}</td>
             <td class="px-6 py-4 text-sm text-gray-500">{{ book.publisher ?? '—' }}</td>
             <td class="px-6 py-4 text-sm text-gray-500">
@@ -50,7 +52,7 @@ const destroy = (id) => {
             </td>
           </tr>
           <tr v-if="books.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-400">書籍が登録されていません</td>
+            <td colspan="7" class="px-6 py-8 text-center text-gray-400">書籍が登録されていません</td>
           </tr>
         </tbody>
       </table>

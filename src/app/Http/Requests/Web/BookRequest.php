@@ -28,6 +28,7 @@ class BookRequest extends FormRequest
             'author'    => ['required', 'string', 'max:255'],
             'publisher' => ['nullable', 'string', 'max:255'],
             'price'     => ['nullable', 'integer', 'min:0'],
+            'genre_id'  => ['nullable', 'integer', 'exists:genres,id'],
         ];
     }
 }

@@ -4,9 +4,13 @@ import { useForm, Link } from '@inertiajs/vue3'
 
 defineOptions({ layout: AppLayout })
 
-const props = defineProps({ book: Object })
+const props = defineProps({
+  book:   Object,
+  genres: Array,
+})
 
 const form = useForm({
+  genre_id:  props.book.genre_id ?? '',
   jan_code:  props.book.jan_code ?? '',
   title:     props.book.title,
   author:    props.book.author,
@@ -25,6 +29,19 @@ const submit = () => form.put(route('books.update', props.book.id))
     </div>
 
     <form @submit.prevent="submit" class="bg-white rounded-xl shadow p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ジャンル</label>
+        <select v-model="form.genre_id"
+          class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          :class="{ 'border-red-400': form.errors.genre_id }">
+          <option value="">未分類</option>
+          <option v-for="genre in genres" :key="genre.id" :value="genre.id">
+            {{ genre.name }}
+          </option>
+        </select>
+        <p v-if="form.errors.genre_id" class="text-red-500 text-sm mt-1">{{ form.errors.genre_id }}</p>
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">タイトル <span class="text-red-500">*</span></label>
         <input v-model="form.title" type="text"
