@@ -12,6 +12,7 @@ const page = usePage()
           <span class="font-bold text-gray-800">Book Stock</span>
           <Link :href="route('dashboard')" class="text-gray-600 hover:text-gray-900 text-sm">ダッシュボード</Link>
           <Link :href="route('books.index')" class="text-gray-600 hover:text-gray-900 text-sm">書籍</Link>
+          <Link :href="route('genres.index')" class="text-gray-600 hover:text-gray-900 text-sm">ジャンル</Link>
           <Link :href="route('stocks.index')" class="text-gray-600 hover:text-gray-900 text-sm">在庫</Link>
           <Link :href="route('store-users.index')" class="text-gray-600 hover:text-gray-900 text-sm">スタッフ</Link>
           <Link :href="route('purchase-histories.index')" class="text-gray-600 hover:text-gray-900 text-sm">仕入れ履歴</Link>
