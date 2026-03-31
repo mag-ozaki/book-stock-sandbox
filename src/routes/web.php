@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\BookController;
+use App\Http\Controllers\Web\GenreController;
 use App\Http\Controllers\Web\PurchaseHistoryController;
 use App\Http\Controllers\Web\StockController;
 use App\Http\Controllers\Web\StoreUserController;
@@ -16,6 +17,9 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
         ->parameters(['store-users' => 'store_user']);
 
     Route::resource('books', BookController::class)
+        ->except(['show']);
+
+    Route::resource('genres', GenreController::class)
         ->except(['show']);
 
     Route::get('/stocks/export', [StockController::class, 'export'])->name('stocks.export');

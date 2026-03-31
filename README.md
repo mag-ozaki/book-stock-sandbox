@@ -250,6 +250,9 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | `GET /login` | ログイン画面 |
 | `GET /dashboard` | ダッシュボード |
 | `GET /books` | 書籍一覧 |
+| `GET /genres` | ジャンル一覧 |
+| `GET /genres/create` | ジャンル登録 |
+| `GET /genres/{id}/edit` | ジャンル編集 |
 | `GET /stocks` | 在庫一覧 |
 | `GET /stocks/export` | 在庫 CSV エクスポート |
 | `GET /store-users` | スタッフ一覧 |
@@ -288,6 +291,7 @@ docker compose exec -e XDEBUG_MODE=coverage laravel php artisan test --coverage-
 | ユーザー CRUD（自店舗） | — | ✅ | — |
 | ユーザー参照（自店舗） | — | ✅ | ✅ |
 | 書籍 CRUD | — | ✅ | ✅ |
+| ジャンル CRUD | ✅ | ✅ | ✅ |
 | 在庫 CRUD（自店舗） | — | ✅ | ✅ |
 | 在庫 CSV エクスポート | — | ✅ | ✅ |
 | 購入履歴 参照・登録（自店舗） | — | ✅ | ✅ |
@@ -329,6 +333,11 @@ store_users
   remember_token
   timestamps
 
+genres
+  id            BIGINT PK
+  name          VARCHAR(100) UNIQUE
+  timestamps
+
 books
   id            BIGINT PK
   jan_code      VARCHAR(26) UNIQUE NULL  ※上段13桁+下段13桁
@@ -336,6 +345,7 @@ books
   author        VARCHAR(255)
   publisher     VARCHAR(255) NULL
   price         INT UNSIGNED NULL  ※円単位
+  genre_id      BIGINT FK → genres.id NULL ON DELETE SET NULL
   timestamps
 
 stocks
@@ -399,6 +409,7 @@ stores      ──< stocks
 stores      ──< purchase_histories
 stores      ──< store_api_keys
 stores      ──< sale_histories
+genres      ──< books
 books       ──< stocks
 books       ──< purchase_histories
 books       ──< sale_histories
@@ -438,8 +449,8 @@ book-stock-sandbox/
     │   │   │   ├── Api/        # POS API フォームリクエスト
     │   │   │   └── Web/        # 一般ユーザー向けフォームリクエスト
     │   │   └── Resources/      # BookResource, SaleHistoryResource
-    │   ├── Models/             # Admin, Store, StoreUser, Book, Stock, PurchaseHistory, StoreApiKey, SaleHistory
-    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, StockPolicy, PurchaseHistoryPolicy, SaleHistoryPolicy
+    │   ├── Models/             # Admin, Store, StoreUser, Book, Genre, Stock, PurchaseHistory, StoreApiKey, SaleHistory
+    │   ├── Policies/           # StorePolicy, StoreUserPolicy, BookPolicy, GenrePolicy, StockPolicy, PurchaseHistoryPolicy, SaleHistoryPolicy
     │   ├── Providers/
     │   │   └── FortifyServiceProvider.php
     │   ├── Repositories/       # データアクセス層

@@ -10,13 +10,14 @@ class BookRepository
     /** 全書籍一覧（管理者・共有マスター表示用） */
     public function all(): Collection
     {
-        return Book::orderBy('title')->get();
+        return Book::with('genre')->orderBy('title')->get();
     }
 
     /** 自店舗の在庫に紐づく書籍一覧 */
     public function allByStore(int $storeId): Collection
     {
-        return Book::whereHas('stocks', fn ($q) => $q->where('store_id', $storeId))
+        return Book::with('genre')
+            ->whereHas('stocks', fn ($q) => $q->where('store_id', $storeId))
             ->orderBy('title')
             ->get();
     }

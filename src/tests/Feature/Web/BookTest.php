@@ -3,6 +3,7 @@
 namespace Tests\Feature\Web;
 
 use App\Models\Book;
+use App\Models\Genre;
 use App\Models\StoreUser;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -221,5 +222,72 @@ class BookTest extends TestCase
             ->assertRedirect(route('books.index'));
 
         $this->assertDatabaseHas('books', ['id' => $book->id, 'jan_code' => '97840000000001920000000000']);
+    }
+
+    // genre_id 関連
+
+    public function test_can_create_book_with_valid_genre_id(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+        $genre = Genre::factory()->create();
+
+        $this->actingAs($owner, 'web')
+            ->post(route('books.store'), [
+                'title'    => 'Genre Book',
+                'author'   => 'Author Name',
+                'genre_id' => $genre->id,
+            ])
+            ->assertRedirect(route('books.index'));
+
+        $this->assertDatabaseHas('books', ['title' => 'Genre Book', 'genre_id' => $genre->id]);
+    }
+
+    public function test_can_create_book_with_null_genre_id(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+
+        $this->actingAs($owner, 'web')
+            ->post(route('books.store'), [
+                'title'    => 'No Genre Book',
+                'author'   => 'Author Name',
+                'genre_id' => null,
+            ])
+            ->assertRedirect(route('books.index'));
+
+        $this->assertDatabaseHas('books', ['title' => 'No Genre Book', 'genre_id' => null]);
+    }
+
+    public function test_invalid_genre_id_fails_validation(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+
+        $this->actingAs($owner, 'web')
+            ->post(route('books.store'), [
+                'title'    => 'Invalid Genre Book',
+                'author'   => 'Author Name',
+                'genre_id' => 99999,
+            ])
+            ->assertSessionHasErrors('genre_id');
+    }
+
+    public function test_create_form_includes_genres_prop(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+
+        $this->actingAs($owner, 'web')
+            ->get(route('books.create'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->has('genres'));
+    }
+
+    public function test_edit_form_includes_genres_prop(): void
+    {
+        $owner = StoreUser::factory()->owner()->create();
+        $book  = Book::factory()->create();
+
+        $this->actingAs($owner, 'web')
+            ->get(route('books.edit', $book))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->has('genres'));
     }
 }
